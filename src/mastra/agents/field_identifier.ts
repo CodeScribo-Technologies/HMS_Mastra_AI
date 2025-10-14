@@ -12,15 +12,15 @@ Return ONLY JSON with exactly the provided keys (and nested structure if form is
   model: openai('gpt-4o-mini'),
 });
 
-export type IdentifyRequest = {
+export type FieldIdentifierRequest = {
   fields?: string[];
   form?: Record<string, unknown>;
   paragraph: string;
 };
 
-export async function identifyService(
+export async function fieldIdentifierService(
   mastra: Mastra,
-  req: IdentifyRequest,
+  req: FieldIdentifierRequest,
 ): Promise<{ mapping: Record<string, unknown> }> {
   const agent = mastra.getAgent(IDENTIFY_AGENT_NAME);
   const prompt = req.form
@@ -29,11 +29,11 @@ export async function identifyService(
   const result = await agent.generate(prompt);
   const text = await result.text;
 
-  const parsed = safeParseJsonObject(text);
+  const parsed = ParseJsonObject(text);
   return { mapping: parsed };
 }
 
-function safeParseJsonObject(maybeJson: string): Record<string, unknown> {
+function ParseJsonObject(maybeJson: string): Record<string, unknown> {
   try {
     return JSON.parse(maybeJson);
   } catch {
