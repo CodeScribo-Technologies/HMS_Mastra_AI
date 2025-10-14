@@ -1,6 +1,6 @@
 import { fieldIdentifierService } from '../agents/field_identifier';
 export const fieldIdentifierRoute = {
-  path: '/api/identify',
+  path: '/field-identifier',
   method: 'POST',
   createHandler: async ({ mastra }) => {
     return async (c) => {
