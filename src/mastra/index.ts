@@ -1,14 +1,14 @@
 
 import { Mastra } from '@mastra/core';
-import { identifyAgent } from './agents/basic.js';
-import identifyRoute from './routes/identify.js';
+import { fieldIdentifierAgent } from './agents/field_identifier.js';
+import fieldIdentifierRoute from './routes/field_identifier_route.js';
 
 export const mastra = new Mastra({
   agents: {
-    identify: identifyAgent,
+    identify: fieldIdentifierAgent,
   },
   server: {
-    apiRoutes: [identifyRoute],
+    apiRoutes: [fieldIdentifierRoute],
   },
 })
         
