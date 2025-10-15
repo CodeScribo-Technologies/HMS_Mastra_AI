@@ -7,14 +7,13 @@ export const IDENTIFY_AGENT_NAME = 'identify' as const;
 
 export const fieldIdentifierAgent = new Agent({
   name: IDENTIFY_AGENT_NAME,
-  instructions: `You will receive either a list of field names (fields[]) or a nested form object (form) along with a paragraph. Understand the paragraph and fill values for the provided fields/keys.
-Return ONLY JSON with exactly the provided keys (and nested structure if form is provided). All leaf values must be strings. If a value is not present in the paragraph, return an empty string. Do not include any extra keys or any non-JSON text.`,
+  instructions: `You will receive a nested form object (form) along with a paragraph. Understand the paragraph and fill values for the provided form structure.
+Return ONLY JSON with exactly the provided keys and nested structure. All leaf values must be strings. If a value is not present in the paragraph, return an empty string. Do not include any extra keys or any non-JSON text.`,
   model: openai('gpt-4o-mini'),
 });
 
 export type FieldIdentifierRequest = {
-  fields?: string[];
-  form?: Record<string, unknown>;
+  form: Record<string, unknown>;
   paragraph: string;
 };
 
@@ -23,9 +22,7 @@ export async function fieldIdentifierService(
   req: FieldIdentifierRequest,
 ): Promise<{ mapping: Record<string, unknown> }> {
   const agent = mastra.getAgent(IDENTIFY_AGENT_NAME);
-  const prompt = req.form
-    ? `Form: ${JSON.stringify(req.form)}\nParagraph: ${req.paragraph}`
-    : `Fields: ${JSON.stringify(req.fields ?? [])}\nParagraph: ${req.paragraph}`;
+  const prompt = `Form: ${JSON.stringify(req.form)}\nParagraph: ${req.paragraph}`;
   const result = await agent.generate(prompt);
   const text = await result.text;
 
