@@ -16,7 +16,7 @@ Return ONLY valid JSON:
     {
       "disease": "Disease Name",
       "reason": "Brief explanation why predicted based on patient data",
-      "solution": "Treatment recommendations and next steps"
+      "solution": "Treatment recommendations and suggestions for possible tests, labs, or imaging studies"
     }
   ]
 }
