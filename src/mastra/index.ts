@@ -2,18 +2,21 @@ import { Mastra } from '@mastra/core';
 import { fieldIdentifierAgent } from './agents/field_identifier.js';
 import { diseasePredictorAgent } from './agents/disease_predictor.js';
 import { visitSummarizerAgent } from './agents/visit_summarizer.js';
+import { reportComparatorAgent } from './agents/report_comparator.js';
 import fieldIdentifierRoute from './routes/field_identifier_route.js';
 import diseasePredictorRoute from './routes/disease_predictor_route.js';
 import visitSummarizerRoute from './routes/visit_summarizer_route.js';
+import reportComparatorRoute from './routes/report_comparator_route.js';
 
 export const mastra = new Mastra({
   agents: {
     identify: fieldIdentifierAgent,
     predict: diseasePredictorAgent,
     'visit-summarizer': visitSummarizerAgent,
+    'report-comparator': reportComparatorAgent,
   },
   server: {
-    apiRoutes: [fieldIdentifierRoute, diseasePredictorRoute, visitSummarizerRoute],
+    apiRoutes: [fieldIdentifierRoute, diseasePredictorRoute, visitSummarizerRoute, reportComparatorRoute],
   },
 })
         
