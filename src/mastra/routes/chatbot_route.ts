@@ -5,7 +5,7 @@ export const chatRoute = {
   method: 'POST',
   createHandler: async ({ mastra }) => {
     return async (c) => {
-      let body: { message?: string; messages?: Array<{ content: string }> } | null = null;
+      let body: { message?: string; messages?: Array<{ content: string }>; memory?: { resource?: string; thread?: string } } | null = null;
 
       try {
         try {
@@ -31,9 +31,9 @@ export const chatRoute = {
           return c.json({ error: 'Provide message: string or messages[0].content: string' }, 400);
         }
 
-        const result = await chatbotService(mastra, { text: userText });
+        const result = await chatbotService(mastra, { text: userText, memory: body.memory });
 
-        return c.json({ text: result.text });
+        return c.json({ result: result.text });
       } catch (error) {
         console.error('Chatbot route error:', error);
         return c.json({ error: 'Invalid JSON body' }, 400);

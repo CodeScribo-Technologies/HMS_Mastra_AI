@@ -1,6 +1,7 @@
 import { Agent } from '@mastra/core/agent';
 import { openai } from '@ai-sdk/openai';
 import type { Mastra } from '@mastra/core';
+import { Memory } from '@mastra/memory';
 
 export const CHATBOT_AGENT_NAME = 'chatbot' as const;
 
@@ -11,10 +12,14 @@ export const chatbotAgent = new Agent({
 - Help User with their queries and provide information about the hospital and its services.
 - Ask brief clarifying questions when needed.`,
   model: openai('gpt-4o-mini'),
+  memory: new Memory({
+    options: { lastMessages: 20 },
+  }),
 });
 
 export type ChatRequest = {
   text: string;
+  memory?: { resource?: string; thread?: string };
 };
 
 export type ChatResponse = {
@@ -27,7 +32,11 @@ export async function chatbotService(
 ): Promise<ChatResponse> {
   const agent = mastra.getAgent(CHATBOT_AGENT_NAME);
 
-  const result = await agent.generate(req.text);
+  const execOptions = (req.memory && req.memory.resource && req.memory.thread)
+    ? { memory: { resource: req.memory.resource, thread: req.memory.thread } }
+    : undefined;
+
+  const result = await agent.generate(req.text, execOptions);
   const text = await result.text;
 
   return { text };

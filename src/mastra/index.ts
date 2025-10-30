@@ -5,6 +5,7 @@ import { visitSummarizerAgent } from './agents/visit_summarizer.js';
 import { reportComparatorAgent } from './agents/report_comparator.js';
 import { prescriptionValidatorAgent } from './agents/prescription_validator.js';
 import { chatbotAgent } from './agents/chatbot';
+import { LibSQLStore } from '@mastra/libsql';
 import fieldIdentifierRoute from './routes/field_identifier_route.js';
 import diseasePredictorRoute from './routes/disease_predictor_route.js';
 import visitSummarizerRoute from './routes/visit_summarizer_route.js';
@@ -13,6 +14,9 @@ import prescriptionValidatorRoute from './routes/prescription_validator_route.js
 import chatRoute from './routes/chatbot_route';
 
 export const mastra = new Mastra({
+  storage: new LibSQLStore({
+    url: ':memory:',
+  }),
   agents: {
     identify: fieldIdentifierAgent,
     predict: diseasePredictorAgent,
