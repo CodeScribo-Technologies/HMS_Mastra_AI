@@ -2,11 +2,12 @@ import { writeFile, unlink, mkdtemp, readFile } from 'fs/promises';
 import { join, extname } from 'path';
 import { tmpdir } from 'os';
 import scribe from 'scribe.js-ocr';
-import { mastra } from '../index.js';
+import type { Mastra } from '@mastra/core';
 import { reportComparatorService } from '../agents/report_comparator.js';
 
 
 export const processAndCompareReports = async (
+  mastra: Mastra,
   sourceFile: File,
   targetFile: File
 ) => {

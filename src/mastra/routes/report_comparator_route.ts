@@ -18,7 +18,7 @@ export const reportComparatorRoute = {
           return c.json({ error: 'targetFile is required' }, 400);
         }
 
-        const result = await processAndCompareReports(sourceFile, targetFile);
+        const result = await processAndCompareReports(mastra, sourceFile, targetFile);
         
         return c.json({ result });
       } catch (error) {
