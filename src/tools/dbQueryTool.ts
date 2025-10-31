@@ -26,10 +26,7 @@ export const dbQueryTool = createTool({
     if (!/deleted_at\s+is\s+null/i.test(withSoftDelete)) {
       if (/\bwhere\b/i.test(withSoftDelete)) {
         const re = /(where[\s\S]*?)(\s+order\s+by|\s+limit|\s+offset|$)/i;
-        const replaced = withSoftDelete.replace(re, (_m, wherePart, tail) => {
-          return `${wherePart} AND deleted_at IS NULL${tail}`;
-        });
-        withSoftDelete = replaced;
+        withSoftDelete = withSoftDelete.replace(re, (_m, wherePart, tail) => `${wherePart} AND deleted_at IS NULL${tail}`);
       } else {
         const re = /(\s+order\s+by|\s+limit|\s+offset|$)/i;
         withSoftDelete = withSoftDelete.replace(re, (tail: string) => ` WHERE deleted_at IS NULL${tail}`);
@@ -37,13 +34,21 @@ export const dbQueryTool = createTool({
     }
 
     let safeQuery = withSoftDelete;
-    if (!/limit\s+\d+/i.test(withoutTrailingSemi)) {
-      safeQuery = `${withSoftDelete} LIMIT ${DEFAULT_LIMIT}`;
+    const limitMatch = /\blimit\s+(\d+)/i.exec(withSoftDelete);
+    if (limitMatch) {
+      const requested = Number(limitMatch[1]);
+      if (!Number.isFinite(requested) || requested < 1) {
+        safeQuery = withSoftDelete.replace(/\blimit\s+\d+/i, `LIMIT ${DEFAULT_LIMIT}`);
+      } else if (requested > DEFAULT_LIMIT) {
+        safeQuery = withSoftDelete.replace(/\blimit\s+\d+/i, `LIMIT ${DEFAULT_LIMIT}`);
+      }
+    } else {
+      safeQuery = `${withSoftDelete} LIMIT ${DEFAULT_LIMIT}`;  
     }
 
     try {
       const rows = await runQuery(safeQuery);
-      return { rows };
+      return { rows, executedQuery: safeQuery };
     } catch (err: any) {
       return { error: err.message || 'Query execution failed' };
     }
