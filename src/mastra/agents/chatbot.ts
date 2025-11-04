@@ -2,22 +2,24 @@ import { Agent } from '@mastra/core/agent';
 import { openai } from '@ai-sdk/openai';
 import type { Mastra } from '@mastra/core';
 import { Memory } from '@mastra/memory';
-import { dbQueryTool } from '../../tools/dbQueryTool';
+import { visitQueryTool } from '../../tools/visitQueryTool';
 
 export const CHATBOT_AGENT_NAME = 'chatbot' as const;
 
 export const chatbotAgent = new Agent({
   name: CHATBOT_AGENT_NAME,
-  instructions: `You are a hospital chatbot assistant.
- - Be concise, friendly, and empathetic.
- - Help User with their queries and provide information about the hospital and its services.
- - Ask brief clarifying questions when needed.
- - You can use the "run_postgres_query" tool to fetch real data from the hospital database.
- - Only use this tool for factual data from the database.
- - Important: All database table names are plural (e.g., use plural nouns). Do not guess singular table names.
- - When composing SQL, avoid semicolons and always include a reasonable LIMIT.`,
+  instructions: `You are a patient visit chatbot assistant.
+ - Be brief, concise, and friendly.
+ - Answer only what the user asks. Do not suggest follow-up questions or future actions.
+ - Do not provide examples of what to ask next.
+ - Answer questions about patient visits and related visit information.
+ - Use the "run_visit_query" tool to fetch data. Check the tool description for available tables.
+ - Do not mention specific table names or column names in your responses unless the user explicitly asks for them.
+ - If a query fails because a column doesn't exist, explain what you tried and ask the user for the exact table and column name or specify another table to search.
+ - If asked about non-visit data, inform that you only help with patient visit information and suggest contacting the appropriate department.
+ - Keep responses short and to the point.`,
   model: openai('gpt-5-nano'),
-  tools: { run_postgres_query: dbQueryTool },
+  tools: { run_visit_query: visitQueryTool },
   memory: new Memory({
     options: { lastMessages: 20 },
   }),

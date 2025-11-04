@@ -1,0 +1,112 @@
+# Patient Visit Chatbot - Quick Reference Guide
+
+## Table Names (8 Tables Total)
+
+1. **patients** - Patient master table
+2. **patient_visits** - Patient visit table  
+3. **visit_examinations** - Examination table
+4. **visit_diagnoses** - Diagnosis table
+5. **visit_invest_treatments** - Investigation/Treatment table
+6. **visit_management_plans** - Management plan table
+7. **visit_followups** - Follow-up table
+8. **nurse_sheets** - Nurse sheet table
+
+---
+
+## Key Relationships
+
+### Patient → Visit
+```
+patient_visits.patient_id → patients.uuid
+```
+
+### Visit → Detail Tables
+```
+visit_examinations.patient_visit_id → patient_visits.uuid
+visit_diagnoses.patient_visit_id → patient_visits.uuid
+visit_invest_treatments.patient_visit_id → patient_visits.uuid
+visit_management_plans.patient_visit_id → patient_visits.uuid
+visit_followups.patient_visit_id → patient_visits.uuid
+nurse_sheets.patientvisit_id → patient_visits.uuid  ⚠️ Note: column name is patientvisit_id (no underscore)
+```
+
+---
+
+## Primary Keys
+
+All tables use **`uuid`** (VARCHAR(255)) as primary key.
+
+---
+
+## Soft Delete
+
+All tables have **`deleted_at`** (TIMESTAMP, NULLABLE) column for soft deletes.
+
+**Important**: Always filter with `WHERE deleted_at IS NULL` to exclude soft-deleted records.
+
+---
+
+## Column Naming Note
+
+⚠️ **Exception**: `nurse_sheets` table uses `patientvisit_id` (no underscore) instead of `patient_visit_id` like other tables.
+
+---
+
+## JSONB Columns
+
+Many columns store JSON data. These need special handling in queries:
+
+- `visit_examinations`: `chief_complaint`, `review_of_systems`, `clinical_examination`
+- `visit_diagnoses`: `provisional_diagnosis`, `final_diagnosis`, `medications`
+- `visit_invest_treatments`: `package`, `laboratory`, `referral_investigations`, `procedure_treatments`
+- `visit_management_plans`: `package`, `laboratory`, `medications`, `procedure_treatments`, `follow_up_plan`
+- `visit_followups`: `follow_up_plan`
+- `nurse_sheets`: `vital`, `pain`, `allergy`
+
+---
+
+## Database Access Requirements
+
+**Read-Only Access**: SELECT permissions only on these 8 tables.
+
+**No Access**: All other tables in the database should be inaccessible.
+
+---
+
+## Common Query Pattern
+
+```sql
+-- Get visit details for a patient
+SELECT * FROM patient_visits 
+WHERE patient_id = 'PATIENT_UUID' 
+  AND deleted_at IS NULL;
+
+-- Get examination for a visit
+SELECT * FROM visit_examinations 
+WHERE patient_visit_id = 'VISIT_UUID' 
+  AND deleted_at IS NULL;
+
+-- Get all visit details for a visit
+SELECT 
+  v.*,
+  e.*,
+  d.*,
+  it.*,
+  mp.*,
+  f.*,
+  n.*
+FROM patient_visits v
+LEFT JOIN visit_examinations e ON e.patient_visit_id = v.uuid AND e.deleted_at IS NULL
+LEFT JOIN visit_diagnoses d ON d.patient_visit_id = v.uuid AND d.deleted_at IS NULL
+LEFT JOIN visit_invest_treatments it ON it.patient_visit_id = v.uuid AND it.deleted_at IS NULL
+LEFT JOIN visit_management_plans mp ON mp.patient_visit_id = v.uuid AND mp.deleted_at IS NULL
+LEFT JOIN visit_followups f ON f.patient_visit_id = v.uuid AND f.deleted_at IS NULL
+LEFT JOIN nurse_sheets n ON n.patientvisit_id = v.uuid AND n.deleted_at IS NULL
+WHERE v.patient_id = 'PATIENT_UUID' 
+  AND v.deleted_at IS NULL;
+```
+
+---
+
+For detailed schema information, see **VISIT_CHATBOT_SCHEMA.md**
+
