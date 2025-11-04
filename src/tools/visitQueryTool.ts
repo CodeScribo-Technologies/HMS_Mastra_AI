@@ -1,6 +1,7 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 import { runQuery, extractTableNames, applySoftDeleteFilter, enforceLimit, sanitizeQuery, validateSelectOnly, validateSingleStatement } from '../utils/db';
+import { getFormattedSchemaForTool } from '../utils/schema';
 
 const DEFAULT_LIMIT = process.env.DB_QUERY_LIMIT ? Number(process.env.DB_QUERY_LIMIT) : undefined;
 const SOFT_DELETE_COLUMN = 'deleted_at';
@@ -42,7 +43,15 @@ function validateTableAccess(sql: string): { valid: boolean; error?: string; tab
 
 export const visitQueryTool = createTool({
   id: 'run_visit_query',
-  description: 'Run a safe SQL SELECT query on patient visit tables only. Allowed tables: patients, patient_visits, visit_examinations, visit_diagnoses, visit_invest_treatments, visit_management_plans, visit_followups, nurse_sheets. Only read-only SELECT queries are allowed.',
+  description: `Run a safe SQL SELECT query on patient visit tables only. Only read-only SELECT queries are allowed.
+
+Allowed tables and schema:
+${getFormattedSchemaForTool()}
+
+Important notes:
+- All tables use 'uuid' (VARCHAR(255)) as primary key
+- All tables have 'deleted_at' column for soft deletes (automatically filtered)
+- JSONB columns store JSON data and need special handling in queries`,
   inputSchema: z.object({
     query: z.string().describe('The SELECT SQL query to run. Must be read-only and only query patient visit related tables.'),
   }),
