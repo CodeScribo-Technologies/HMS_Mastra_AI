@@ -16,7 +16,7 @@ export const chatbotAgent = new Agent({
  - Only use this tool for factual data from the database.
  - Important: All database table names are plural (e.g., use plural nouns). Do not guess singular table names.
  - When composing SQL, avoid semicolons and always include a reasonable LIMIT.`,
-  model: openai('gpt-4o-mini'),
+  model: openai('gpt-5-nano'),
   tools: { run_postgres_query: dbQueryTool },
   memory: new Memory({
     options: { lastMessages: 20 },

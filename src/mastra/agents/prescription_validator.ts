@@ -16,7 +16,7 @@ Return ONLY JSON:
 { "status": "short label summarizing safety", "analysis": "short paragraph with recommendation and final verdict" }
 
 Do not include any text outside the JSON object.`,
-  model: openai('gpt-4o-mini'),
+  model: openai('gpt-5-nano'),
 });
 
 export type PrescriptionValidatorRequest = Record<string, unknown>;

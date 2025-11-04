@@ -18,7 +18,7 @@ Return ONLY valid JSON:
 }
 
 Output valid JSON only.`,
-  model: openai('gpt-4o-mini'),
+  model: openai('gpt-5-nano'),
 });
 
 export type VisitSummarizerRequest = Record<string, unknown>;

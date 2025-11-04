@@ -9,7 +9,7 @@ export const fieldIdentifierAgent = new Agent({
   name: IDENTIFY_AGENT_NAME,
   instructions: `You will receive a nested form object (form) along with a paragraph. Understand the paragraph and fill values for the provided form structure.
 Return ONLY JSON with exactly the provided keys and nested structure. All leaf values must be strings. If a value is not present in the paragraph, return an empty string. Do not include any extra keys or any non-JSON text.`,
-  model: openai('gpt-4o-mini'),
+  model: openai('gpt-5-nano'),
 });
 
 export type FieldIdentifierRequest = {

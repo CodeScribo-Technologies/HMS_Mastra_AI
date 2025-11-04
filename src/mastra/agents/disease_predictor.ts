@@ -22,7 +22,7 @@ Return ONLY valid JSON:
 }
 
 Sort by most likely first. Output valid JSON only.`,
-  model: openai('gpt-4o-mini'),
+  model: openai('gpt-5-nano'),
 });
 
 export type Prediction = {

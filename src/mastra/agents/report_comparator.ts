@@ -17,7 +17,7 @@ Return JSON only:
 }
 
 Make points concise, numbered, and medically relevant.`,
-  model: openai('gpt-4o-mini'),
+  model: openai('gpt-5-nano'),
 });
 
 export type ReportComparatorRequest = {
