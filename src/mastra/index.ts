@@ -11,7 +11,7 @@ import diseasePredictorRoute from './routes/disease_predictor_route.js';
 import visitSummarizerRoute from './routes/visit_summarizer_route.js';
 import reportComparatorRoute from './routes/report_comparator_route.js';
 import prescriptionValidatorRoute from './routes/prescription_validator_route.js';
-import chatRoute from './routes/chatbot_route';
+import { chatRoute } from "@mastra/ai-sdk"; 
 
 export const mastra = new Mastra({
   storage: new LibSQLStore({
@@ -23,10 +23,20 @@ export const mastra = new Mastra({
     'visit-summarizer': visitSummarizerAgent,
     'report-comparator': reportComparatorAgent,
     'prescription-validator': prescriptionValidatorAgent,
-    'chatbot': chatbotAgent,
+    chatbot: chatbotAgent,
   },
   server: {
-    apiRoutes: [fieldIdentifierRoute, diseasePredictorRoute, visitSummarizerRoute, reportComparatorRoute, prescriptionValidatorRoute, chatRoute],
+    apiRoutes: [
+      fieldIdentifierRoute,
+      diseasePredictorRoute,
+      visitSummarizerRoute,
+      reportComparatorRoute,
+      prescriptionValidatorRoute,
+
+      chatRoute({
+        path: "/chat-bot",
+        agent: "chatbot",
+      }),
+    ],
   },
-})
-        
+});

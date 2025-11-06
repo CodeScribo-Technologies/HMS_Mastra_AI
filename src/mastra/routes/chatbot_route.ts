@@ -1,45 +1,47 @@
-import { chatbotService } from '../agents/chatbot';
+// // File: chatRouteStreaming.ts
+// import type { Mastra } from "@mastra/core";
 
-export const chatRoute = {
-  path: '/chat-bot',
-  method: 'POST',
-  createHandler: async ({ mastra }) => {
-    return async (c) => {
-      let body: { message?: string; messages?: Array<{ content: string }>; memory?: { resource?: string; thread?: string } } | null = null;
+// export const chatRoute = {
+//   path: "/chat-bot",
+//   method: "POST",
+//   createHandler: async ({ mastra }: { mastra: Mastra }) => {
+//     return async (c) => {
+//       let body: {
+//         messages?: Array<{ content: string }>;
+//         memory?: { resource?: string; thread?: string };
+//       };
 
-      try {
-        try {
-          body = await c.req.json();
-        } catch {
-          const raw = await c.req.text();
-          body = JSON.parse(raw);
-        }
+//       try {
+//         body = await c.req.json();
+//       } catch {
+//         const raw = await c.req.text();
+//         body = JSON.parse(raw);
+//       }
 
-        if (!body || typeof body !== 'object') {
-          return c.json({ error: 'Body must be a valid object' }, 400);
-        }
+//       if (!body.messages || !Array.isArray(body.messages) || body.messages.length === 0) {
+//         return c.json({ error: "messages[].content is required" }, 400);
+//       }
 
-        const single = typeof body.message === 'string' ? body.message : undefined;
-        const fromArray =
-          Array.isArray(body.messages) && body.messages.length > 0
-            ? String(body.messages[0]?.content ?? '')
-            : undefined;
+//       const agent = mastra.getAgent("chatbot");
+//       if (!agent) {
+//         return c.json({ error: "Agent 'chatbot' not found" }, 500);
+//       }
 
-        const userText = (single ?? fromArray ?? '').trim();
+//       const execOptions = body.memory?.resource && body.memory?.thread
+//         ? { memory: { resource: body.memory.resource, thread: body.memory.thread } }
+//         : undefined;
 
-        if (!userText) {
-          return c.json({ error: 'Provide message: string or messages[0].content: string' }, 400);
-        }
+//       // Convert structured messages to string[] for compatibility
+//       const simpleMessages = body.messages.map(m => m.content);
 
-        const result = await chatbotService(mastra, { text: userText, memory: body.memory });
+//       const stream = await agent.stream(simpleMessages, {
+//         format: "aisdk",
+//         ...execOptions,
+//       });
 
-        return c.json({ result: result.text });
-      } catch (error) {
-        console.error('Chatbot route error:', error);
-        return c.json({ error: 'Invalid JSON body' }, 400);
-      }
-    };
-  },
-} as const;
+//       return stream.toUIMessageStreamResponse();
+//     };
+//   },
+// } as const;
 
-export default chatRoute;
+// export default chatRoute;
