@@ -26,6 +26,13 @@ export const mastra = new Mastra({
     chatbot: chatbotAgent,
   },
   server: {
+    cors: {
+      origin: ["http://localhost:5173"],
+      credentials: true,
+      allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+      allowHeaders: ["Content-Type", "Authorization", "X-Requested-With", "st-auth-mode", "rid"],
+      maxAge: 86400,
+    },
     apiRoutes: [
       fieldIdentifierRoute,
       diseasePredictorRoute,

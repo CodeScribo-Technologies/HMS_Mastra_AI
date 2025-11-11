@@ -4,9 +4,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "mastra dev",
-    "build": "mastra build",
-    "start": "mastra start"
+    "dev": "npx mastra dev",
+    "build": "npx mastra build",
+    "start": "npx mastra start"
   },
   "keywords": [],
   "author": "",
@@ -19,16 +19,16 @@
   "dependencies": {
     "@ai-sdk/openai": "^2.0.52",
     "@mastra/ai-sdk": "^0.2.6",
-    "@mastra/core": "^0.21.0",
-    "@mastra/libsql": "^0.15.2",
-    "@mastra/memory": "^0.15.10",
+    "@mastra/core": "^0.24.0",
+    "@mastra/libsql": "^0.16.2",
+    "@mastra/memory": "^0.15.11",
     "pg": "^8.16.3",
     "scribe.js-ocr": "^0.9.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^24.7.2",
-    "mastra": "^0.15.1",
+    "mastra": "^0.18.0",
     "typescript": "^5.9.3"
   }
 }
