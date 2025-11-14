@@ -114,3 +114,42 @@ export function validateSingleStatement(sql: string): { valid: boolean; error?: 
   return { valid: true };
 }
 
+export function hasVisitIdFilter(sql: string): boolean {
+  const visitIdPattern = /\bpatient_visit_id\s*=\s*['"]?[^'"]+['"]?/i;
+  return visitIdPattern.test(sql);
+}
+
+export function getVisitIdColumnName(tableName: string): string {
+  return 'patient_visit_id';
+}
+
+export function isVisitSpecificTable(tableName: string, allowedTables: Set<string>, sql?: string): boolean {
+  if (tableName === 'patient_visits') {
+    return sql ? hasVisitIdFilter(sql) : false;
+  }
+  return allowedTables.has(tableName);
+}
+
+
+export function injectVisitIdFilter(sql: string, visitId: string, tableNames: string[], allowedTables: Set<string>): string {
+  const visitSpecificTable = tableNames.find(table => isVisitSpecificTable(table, allowedTables, sql));
+  if (!visitSpecificTable) {
+    return sql;
+  }
+  
+  const columnName = getVisitIdColumnName(visitSpecificTable);
+  const filter = `${columnName} = '${visitId.replace(/'/g, "''")}'`;
+  
+  if (/\bwhere\b/i.test(sql)) {
+    const re = /(where[\s\S]*?)(\s+order\s+by|\s+group\s+by|\s+limit|\s+offset|$)/i;
+    return sql.replace(re, (_m, wherePart, tail) => `${wherePart} AND ${filter}${tail}`);
+  } else {
+    const re = /(\s+order\s+by|\s+group\s+by|\s+limit|\s+offset|$)/i;
+    return sql.replace(re, (tail: string) => ` WHERE ${filter}${tail}`);
+  }
+}
+
+export function hasVisitSpecificTables(tableNames: string[], allowedTables: Set<string>, sql?: string): boolean {
+  return tableNames.some(table => isVisitSpecificTable(table, allowedTables, sql));
+}
+

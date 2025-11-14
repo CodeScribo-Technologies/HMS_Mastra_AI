@@ -1,13 +1,12 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
-import { runQuery, extractTableNames, applySoftDeleteFilter, enforceLimit, sanitizeQuery, validateSelectOnly, validateSingleStatement } from '../utils/db';
+import { runQuery, extractTableNames, applySoftDeleteFilter, enforceLimit, sanitizeQuery, validateSelectOnly, validateSingleStatement, hasVisitIdFilter, injectVisitIdFilter, hasVisitSpecificTables } from '../utils/db';
 import { getFormattedSchemaForTool } from '../utils/schema';
 
 const DEFAULT_LIMIT = process.env.DB_QUERY_LIMIT ? Number(process.env.DB_QUERY_LIMIT) : undefined;
 const SOFT_DELETE_COLUMN = 'deleted_at';
 
 const ALLOWED_TABLES = new Set([
-  'patients',
   'patient_visits',
   'nurse_sheets',
   'visit_examinations',
@@ -18,9 +17,6 @@ const ALLOWED_TABLES = new Set([
   'patient_histories'  
 ]);
 
-/**
- * Validate that query only references allowed tables
- */
 function validateTableAccess(sql: string): { valid: boolean; error?: string; tables?: string[] } {
   const tableNames = extractTableNames(sql);
   
@@ -41,6 +37,7 @@ function validateTableAccess(sql: string): { valid: boolean; error?: string; tab
   return { valid: true, tables: tableNames };
 }
 
+
 export const visitQueryTool = createTool({
   id: 'run_visit_query',
   description: `Run a safe SQL SELECT query on patient visit tables only. Only read-only SELECT queries are allowed.
@@ -58,6 +55,7 @@ Important notes:
   execute: async ({ context }) => {
     const raw = String((context as { query?: string }).query || '').trim();
     const sanitizedQuery = sanitizeQuery(raw);
+    const currentVisitId = (context as { currentVisitId?: string }).currentVisitId;
 
     const selectValidation = validateSelectOnly(sanitizedQuery);
     if (!selectValidation.valid) {
@@ -74,7 +72,18 @@ Important notes:
       return { error: validation.error };
     }
 
-    const withSoftDelete = applySoftDeleteFilter(sanitizedQuery, SOFT_DELETE_COLUMN);
+    let queryWithVisitFilter = sanitizedQuery;
+    if (currentVisitId && validation.tables) {
+      const tableNames = validation.tables;
+      
+      if (hasVisitSpecificTables(tableNames, ALLOWED_TABLES, sanitizedQuery)) {
+        if (!hasVisitIdFilter(sanitizedQuery)) {
+          queryWithVisitFilter = injectVisitIdFilter(sanitizedQuery, currentVisitId, tableNames, ALLOWED_TABLES);
+        }
+      }
+    }
+
+    const withSoftDelete = applySoftDeleteFilter(queryWithVisitFilter, SOFT_DELETE_COLUMN);
     const safeQuery = enforceLimit(withSoftDelete, DEFAULT_LIMIT);
 
     try {

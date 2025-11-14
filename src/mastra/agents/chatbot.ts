@@ -27,6 +27,7 @@ export const chatbotAgent = new Agent({
 
 export type ChatRequest = {
   text: string;
+  currentVisitId?: string;
   memory?: { resource?: string; thread?: string };
 };
 
@@ -40,11 +41,22 @@ export async function chatbotService(
 ): Promise<ChatResponse> {
   const agent = mastra.getAgent(CHATBOT_AGENT_NAME);
 
-  const execOptions = (req.memory && req.memory.resource && req.memory.thread)
-    ? { memory: { resource: req.memory.resource, thread: req.memory.thread } }
-    : undefined;
+  const execOptions: {
+    memory?: { resource: string; thread: string };
+    context?: { currentVisitId: string };
+  } = {};
+  
+  if (req.memory && req.memory.resource && req.memory.thread) {
+    execOptions.memory = { resource: req.memory.resource, thread: req.memory.thread };
+  }
+  
+  if (req.currentVisitId) {
+    execOptions.context = { currentVisitId: req.currentVisitId };
+  }
 
-  const result = await agent.generate(req.text, execOptions);
+  // Type assertion needed because Mastra's types expect ModelMessage[] for context,
+  // but at runtime it accepts custom context objects that get passed to tools
+  const result = await agent.generate(req.text, Object.keys(execOptions).length > 0 ? (execOptions as any) : undefined);
   const text = await result.text;
 
   return { text };
