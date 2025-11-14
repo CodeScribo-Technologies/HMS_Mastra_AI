@@ -283,7 +283,7 @@ export const VISIT_TABLES_SCHEMA: Record<string, TableSchema> = {
       { name: 'uuid', type: 'VARCHAR(255)', nullable: false, description: 'Primary key, unique identifier' },
       { name: 'id', type: 'INTEGER', nullable: false, description: 'Auto-increment ID' },
       { name: 'patient_id', type: 'VARCHAR(255)', nullable: true, description: 'Foreign key to patients.uuid' },
-      { name: 'patientvisit_id', type: 'VARCHAR(255)', nullable: true, description: 'Foreign key to patient_visits.uuid (note: different column name - no underscore)' },
+      { name: 'patient_visit_id', type: 'VARCHAR(255)', nullable: true, description: 'Foreign key to patient_visits.uuid' },
       { name: 'doctor_id', type: 'VARCHAR(255)', nullable: true, description: 'Foreign key to doctors.uuid' },
       { name: 'nurse_notes', type: 'TEXT', nullable: true, description: 'Nurse notes' },
       { name: 'vital', type: 'JSONB', nullable: true, description: 'Vital signs (JSON object)' },
@@ -300,7 +300,7 @@ export const VISIT_TABLES_SCHEMA: Record<string, TableSchema> = {
     ],
     foreignKeys: [
       { column: 'patient_id', references: 'patients.uuid', description: 'Links to patients' },
-      { column: 'patientvisit_id', references: 'patient_visits.uuid', description: 'Links to visit (note: column name is patientvisit_id, not patient_visit_id)' },
+      { column: 'patient_visit_id', references: 'patient_visits.uuid', description: 'Links to visit' },
       { column: 'doctor_id', references: 'doctors.uuid', description: 'Links to doctors' },
       { column: 'clinic_id', references: 'clinics.uuid', description: 'Links to clinics' },
       { column: 'vendor_id', references: 'vendors.uuid', description: 'Links to vendors' },
@@ -308,7 +308,7 @@ export const VISIT_TABLES_SCHEMA: Record<string, TableSchema> = {
     ],
     relationships: [
       'patient_id → patients.uuid',
-      'patientvisit_id → patient_visits.uuid (note: no underscore)',
+      'patient_visit_id → patient_visits.uuid',
     ],
   },
   patient_histories: {
