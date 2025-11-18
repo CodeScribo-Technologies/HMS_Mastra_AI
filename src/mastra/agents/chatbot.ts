@@ -56,8 +56,6 @@ export async function chatbotService(
     execOptions.context = { currentVisitId: req.currentVisitId };
   }
 
-  // Type assertion needed because Mastra's types expect ModelMessage[] for context,
-  // but at runtime it accepts custom context objects that get passed to tools
   const result = await agent.generate(req.text, Object.keys(execOptions).length > 0 ? (execOptions as any) : undefined);
   const text = await result.text;
 
